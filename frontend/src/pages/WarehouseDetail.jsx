@@ -4,6 +4,7 @@ import Layout from '../components/Layout';
 import { warehouseService } from '../services/warehouseService';
 import { deviceService } from '../services/deviceService';
 import DeviceModal from '../components/DeviceModal';
+import { getImageUrl } from '../services/api';
 import './WarehouseDetail.css';
 
 const deviceTypeMap = {
@@ -175,9 +176,7 @@ const WarehouseDetail = () => {
                   <div className="device-image-container">
                     {device.imageUrl ? (
                       <img 
-                        src={device.imageUrl.startsWith('http') 
-                          ? device.imageUrl 
-                          : `https://localhost:5001${device.imageUrl}`} 
+                        src={getImageUrl(device.imageUrl)} 
                         alt={device.name} 
                         className="device-image" 
                         onError={(e) => {

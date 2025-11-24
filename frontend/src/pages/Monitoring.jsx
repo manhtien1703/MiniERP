@@ -154,12 +154,36 @@ const Monitoring = () => {
 
     // Sử dụng formatToParts để lấy các phần tử riêng lẻ
     const parts = formatter.formatToParts(date);
-    const hour = parts.find(p => p.type === 'hour').value;
-    const minute = parts.find(p => p.type === 'minute').value;
-    const second = parts.find(p => p.type === 'second').value;
-    const day = parts.find(p => p.type === 'day').value;
-    const month = parts.find(p => p.type === 'month').value;
-    const year = parts.find(p => p.type === 'year').value;
+
+    // Tìm các phần tử với null checking để tránh lỗi runtime
+    const hourPart = parts.find(p => p.type === 'hour');
+    const minutePart = parts.find(p => p.type === 'minute');
+    const secondPart = parts.find(p => p.type === 'second');
+    const dayPart = parts.find(p => p.type === 'day');
+    const monthPart = parts.find(p => p.type === 'month');
+    const yearPart = parts.find(p => p.type === 'year');
+
+    // Nếu thiếu bất kỳ phần nào, fallback về format mặc định
+    if (!hourPart || !minutePart || !secondPart || !dayPart || !monthPart || !yearPart) {
+      // Fallback: sử dụng format thông thường
+      return date.toLocaleString('vi-VN', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+        hour12: false,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    }
+
+    const hour = hourPart.value;
+    const minute = minutePart.value;
+    const second = secondPart.value;
+    const day = dayPart.value;
+    const month = monthPart.value;
+    const year = yearPart.value;
 
     // Format: HH:mm:ss DD/MM/YYYY
     return `${hour}:${minute}:${second} ${day}/${month}/${year}`;

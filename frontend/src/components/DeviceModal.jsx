@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { deviceService } from '../services/deviceService';
 import { uploadService } from '../services/uploadService';
+import { getImageUrl } from '../services/api';
 import './Modal.css';
 
 const DeviceModal = ({ device, warehouseId, onClose, onSaved }) => {
@@ -25,9 +26,7 @@ const DeviceModal = ({ device, warehouseId, onClose, onSaved }) => {
         imageUrl: device.imageUrl || '',
       });
       if (device.imageUrl) {
-        setPreviewUrl(device.imageUrl.startsWith('http') 
-          ? device.imageUrl 
-          : `https://localhost:5001${device.imageUrl}`);
+        setPreviewUrl(getImageUrl(device.imageUrl));
       }
     }
   }, [device]);
@@ -77,11 +76,7 @@ const DeviceModal = ({ device, warehouseId, onClose, onSaved }) => {
 
   const handleRemoveImage = () => {
     setSelectedFile(null);
-    setPreviewUrl(formData.imageUrl ? 
-      (formData.imageUrl.startsWith('http') 
-        ? formData.imageUrl 
-        : `https://localhost:5001${formData.imageUrl}`) 
-      : null);
+    setPreviewUrl(formData.imageUrl ? getImageUrl(formData.imageUrl) : null);
     setFormData({ ...formData, imageUrl: '' });
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -224,9 +219,7 @@ const DeviceModal = ({ device, warehouseId, onClose, onSaved }) => {
             {!previewUrl && formData.imageUrl && (
               <div className="image-preview">
                 <img 
-                  src={formData.imageUrl.startsWith('http') 
-                    ? formData.imageUrl 
-                    : `https://localhost:5001${formData.imageUrl}`} 
+                  src={getImageUrl(formData.imageUrl)} 
                   alt="Current" 
                   onError={(e) => e.target.style.display = 'none'} 
                 />

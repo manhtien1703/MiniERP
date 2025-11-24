@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import { deviceService } from '../services/deviceService';
+import { getImageUrl } from '../services/api';
 import './Devices.css';
 
 const deviceTypeMap = {
@@ -92,9 +93,7 @@ const Devices = () => {
                 <div className="device-image-container">
                   {device.imageUrl ? (
                     <img 
-                      src={device.imageUrl.startsWith('http') 
-                        ? device.imageUrl 
-                        : `https://localhost:5001${device.imageUrl}`} 
+                      src={getImageUrl(device.imageUrl)} 
                       alt={device.name} 
                       className="device-image" 
                       onError={(e) => {

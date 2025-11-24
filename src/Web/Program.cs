@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 using Application.Services;
 using Domain.Repositories;
@@ -17,6 +18,7 @@ using Microsoft.OpenApi.Models;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Web.Services;
+using Microsoft.AspNetCore.Http;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -67,6 +69,9 @@ builder.Services.AddSwaggerGen(options =>
             new string[] {}
         }
     });
+
+    // Cấu hình để Swagger hỗ trợ file upload với [FromForm] IFormFile
+    options.OperationFilter<Web.Swagger.FileUploadOperationFilter>();
 });
 
 // FluentValidation
@@ -107,7 +112,21 @@ builder.Services.AddCors(options =>
     {
         // Lấy allowed origins từ configuration hoặc environment variable
         var allowedOrigins = builder.Configuration["AllowedOrigins"]?.Split(';')
-            ?? new[] { "https://mini-erp-gilt.vercel.app" };
+            ?? new[] { 
+                "https://mini-erp-gilt.vercel.app",
+                "http://localhost:5173",  // Frontend local
+                "http://localhost:5174",
+                "http://localhost:5175",
+                "http://localhost:5177"
+            };
+        
+        // Cho phép tất cả ngrok URLs (có thể thêm ngrok URL cụ thể nếu cần)
+        // Ngrok URLs có format: https://xxxxx.ngrok-free.dev hoặc https://xxxxx.ngrok.io
+        var ngrokUrl = builder.Configuration["NgrokUrl"];
+        if (!string.IsNullOrEmpty(ngrokUrl))
+        {
+            allowedOrigins = allowedOrigins.Concat(new[] { ngrokUrl }).ToArray();
+        }
         
         policy.WithOrigins(allowedOrigins)
               .AllowAnyMethod()
@@ -180,22 +199,48 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Chỉ redirect HTTPS trong Development, Production Railway xử lý
-if (app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
+// Tắt HTTPS redirect khi dùng ngrok (tạm thời)
+// Nếu cần HTTPS redirect, có thể bật lại nhưng cần cấu hình ngrok đúng cách
+// if (app.Environment.IsDevelopment())
+// {
+//     app.UseHttpsRedirection();
+// }
 
 // Cấu hình static files để serve ảnh đã upload
-app.UseStaticFiles();
+    app.UseStaticFiles();
 
-// Sử dụng CORS - phải đặt trước Authentication
-app.UseCors("AllowFrontend");
+    // Sử dụng CORS - phải đặt trước Authentication
+    app.UseCors("AllowFrontend");
 
-app.UseAuthentication();
-app.UseAuthorization();
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    // Health check endpoint
+    app.MapGet("/", () => new { 
+        status = "ok", 
+        message = "MiniERP API is running",
+        timestamp = DateTime.UtcNow,
+        endpoints = new[] {
+            "/api/Auth/login",
+            "/api/Warehouse",
+        "/api/Device",
+        "/swagger"
+    }
+}).AllowAnonymous();
+
+app.MapGet("/health", () => new { status = "healthy", timestamp = DateTime.UtcNow }).AllowAnonymous();
+
 app.MapControllers();
 
-// Sử dụng PORT từ environment variable (Railway cung cấp)
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
-app.Run($"http://0.0.0.0:{port}");
+// Sử dụng PORT từ environment variable hoặc cấu hình
+if (app.Environment.IsDevelopment())
+{
+    // Development: Chạy trên localhost với HTTPS và HTTP
+    app.Run();
+}
+else
+{
+    // Production: Sử dụng PORT từ environment variable (Railway cung cấp)
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+    app.Run($"http://0.0.0.0:{port}");
+}
