@@ -105,7 +105,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:5177")
+        // Lấy allowed origins từ configuration hoặc environment variable
+        var allowedOrigins = builder.Configuration["AllowedOrigins"]?.Split(';')
+            ?? new[] { "https://mini-erp-gilt.vercel.app" };
+        
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
@@ -138,36 +142,32 @@ builder.Services.AddHostedService<FakeSensorService>();
 
 var app = builder.Build();
 
-// Auto migrate database (chỉ chạy trong Development)
-if (app.Environment.IsDevelopment())
+// Auto migrate database (chạy trong Development và Production)
+using (var scope = app.Services.CreateScope())
 {
-    using (var scope = app.Services.CreateScope())
+    var services = scope.ServiceProvider;
+    try
     {
-        var services = scope.ServiceProvider;
-        try
+        var context = services.GetRequiredService<MiniErpDbContext>();
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        
+        // Kiểm tra database connection
+        if (context.Database.CanConnect())
         {
-            var context = services.GetRequiredService<MiniErpDbContext>();
-            var logger = services.GetRequiredService<ILogger<Program>>();
-            
-            // Kiểm tra database connection
-            if (context.Database.CanConnect())
-            {
-                logger.LogInformation("Database connection successful. Running migrations...");
-                context.Database.Migrate(); // Chạy migrations
-                logger.LogInformation("Migrations completed successfully.");
-            }
-            else
-            {
-                logger.LogWarning("Cannot connect to database. Please create the database first.");
-                logger.LogWarning("Run: CREATE DATABASE MiniERP CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;");
-            }
+            logger.LogInformation("Database connection successful. Running migrations...");
+            context.Database.Migrate(); // Chạy migrations
+            logger.LogInformation("Migrations completed successfully.");
         }
-        catch (Exception ex)
+        else
         {
-            var logger = services.GetRequiredService<ILogger<Program>>();
-            logger.LogError(ex, "An error occurred while migrating the database.");
-            logger.LogError("Please ensure MySQL is running and the database 'MiniERP' exists.");
+            logger.LogWarning("Cannot connect to database. Please check connection string.");
         }
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+        logger.LogError("Please ensure MySQL is running and the connection string is correct.");
     }
 }
 
@@ -180,7 +180,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Chỉ redirect HTTPS trong Development, Production Railway xử lý
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 // Cấu hình static files để serve ảnh đã upload
 app.UseStaticFiles();
@@ -191,4 +195,7 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.Run();
+
+// Sử dụng PORT từ environment variable (Railway cung cấp)
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+app.Run($"http://0.0.0.0:{port}");

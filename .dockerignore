@@ -1,0 +1,14 @@
+**/.git
+**/.vs
+**/.vscode
+**/.idea
+**/bin
+**/obj
+**/node_modules
+**/.dockerignore
+**/Dockerfile
+**/docker-compose.yml
+**/README.md
+**/.env
+**/.env.local
+
