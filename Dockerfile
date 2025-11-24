@@ -32,7 +32,7 @@ COPY --from=build /app/publish .
 # Ensure wwwroot directory exists (for static files)
 RUN mkdir -p /app/wwwroot/uploads/devices || true
 
-# Expose port (Railway sẽ tự động set PORT env variable)
+# Expose port
 EXPOSE 5000
 
 ENTRYPOINT ["dotnet", "Web.dll"]

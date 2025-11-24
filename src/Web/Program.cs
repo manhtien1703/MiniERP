@@ -240,7 +240,7 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    // Production: Sử dụng PORT từ environment variable (Railway cung cấp)
+    // Production: Sử dụng PORT từ environment variable
     var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
     app.Run($"http://0.0.0.0:{port}");
 }
