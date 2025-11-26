@@ -1,4 +1,15 @@
 .vs/
 
-# Ignore all markdown files
+# Ignore all markdown files except README.md
 *.md
+!README.md
+
+# Ignore ngrok-vercel config (chứa token nhạy cảm)
+.ngrok-vercel/
+*.ngrok-vercel/
+
+# Ignore PowerShell scripts config
+**/.ngrok-vercel/
+
+# MinIO data directory
+minio-data/

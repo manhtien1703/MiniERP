@@ -7,6 +7,7 @@ using Infrastructure.Persistence;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Web.Services;
 using Microsoft.AspNetCore.Http;
+using Minio;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -70,7 +72,15 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 
+    // Bỏ qua lỗi khi generate Swagger document để tránh crash
+    options.IgnoreObsoleteActions();
+    options.IgnoreObsoleteProperties();
+    options.CustomSchemaIds(type => type.FullName);
+    
     // Cấu hình để Swagger hỗ trợ file upload với [FromForm] IFormFile
+    // Map IFormFile để Swagger hiểu cách xử lý
+    options.MapType<IFormFile>(() => new OpenApiSchema { Type = "string", Format = "binary" });
+    // Sử dụng OperationFilter để convert IFormFile parameters thành RequestBody
     options.OperationFilter<Web.Swagger.FileUploadOperationFilter>();
 });
 
@@ -113,20 +123,8 @@ builder.Services.AddCors(options =>
         // Lấy allowed origins từ configuration hoặc environment variable
         var allowedOrigins = builder.Configuration["AllowedOrigins"]?.Split(';')
             ?? new[] { 
-                "https://mini-erp-gilt.vercel.app",
-                "http://localhost:5173",  // Frontend local
-                "http://localhost:5174",
-                "http://localhost:5175",
-                "http://localhost:5177"
+                "http://localhost:5173", 
             };
-        
-        // Cho phép tất cả ngrok URLs (có thể thêm ngrok URL cụ thể nếu cần)
-        // Ngrok URLs có format: https://xxxxx.ngrok-free.dev hoặc https://xxxxx.ngrok.io
-        var ngrokUrl = builder.Configuration["NgrokUrl"];
-        if (!string.IsNullOrEmpty(ngrokUrl))
-        {
-            allowedOrigins = allowedOrigins.Concat(new[] { ngrokUrl }).ToArray();
-        }
         
         policy.WithOrigins(allowedOrigins)
               .AllowAnyMethod()
@@ -137,7 +135,7 @@ builder.Services.AddCors(options =>
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<MiniErpDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 21)))
 );
 
 // Repositories
@@ -158,6 +156,29 @@ builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
 // Fake sensor background job
 builder.Services.AddHostedService<FakeSensorService>();
+
+// MinIO Configuration
+var minioEndpoint = builder.Configuration["MinIO:Endpoint"] ?? "localhost:9000";
+var minioAccessKey = builder.Configuration["MinIO:AccessKey"] ?? "minioadmin";
+var minioSecretKey = builder.Configuration["MinIO:SecretKey"] ?? "minioadmin";
+var minioUseSSL = builder.Configuration.GetValue<bool>("MinIO:UseSSL", false);
+
+builder.Services.AddSingleton<IMinioClient>(sp =>
+{
+    var client = new MinioClient()
+        .WithEndpoint(minioEndpoint)
+        .WithCredentials(minioAccessKey, minioSecretKey);
+    
+    if (minioUseSSL)
+    {
+        client = client.WithSSL();
+    }
+    
+    return client.Build();
+});
+
+// Object Storage Service
+builder.Services.AddScoped<IObjectStorageService, MinioObjectStorageService>();
 
 var app = builder.Build();
 
@@ -193,24 +214,25 @@ using (var scope = app.Services.CreateScope())
 // Global Exception Handling
 app.UseMiddleware<Web.Middleware.GlobalExceptionHandlerMiddleware>();
 
+// CORS PHẢI được đặt TRƯỚC bất kỳ middleware nào có thể redirect hoặc require authentication
+// Điều này đảm bảo preflight OPTIONS requests được xử lý đúng cách
+app.UseCors("AllowFrontend");
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Tắt HTTPS redirect khi dùng ngrok (tạm thời)
-// Nếu cần HTTPS redirect, có thể bật lại nhưng cần cấu hình ngrok đúng cách
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseHttpsRedirection();
-// }
+// HTTPS redirect - Bật lại để sử dụng HTTPS
+// CORS đã được đặt trước nên sẽ xử lý preflight requests đúng cách
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 // Cấu hình static files để serve ảnh đã upload
-    app.UseStaticFiles();
-
-    // Sử dụng CORS - phải đặt trước Authentication
-    app.UseCors("AllowFrontend");
+app.UseStaticFiles();
 
     app.UseAuthentication();
     app.UseAuthorization();

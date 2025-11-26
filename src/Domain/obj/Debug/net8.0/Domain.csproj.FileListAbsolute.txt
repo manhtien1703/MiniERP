@@ -9,3 +9,4 @@ D:\TuHoc\.net\MiniERP\src\Domain\obj\Debug\net8.0\Domain.dll
 D:\TuHoc\.net\MiniERP\src\Domain\obj\Debug\net8.0\refint\Domain.dll
 D:\TuHoc\.net\MiniERP\src\Domain\obj\Debug\net8.0\Domain.pdb
 D:\TuHoc\.net\MiniERP\src\Domain\obj\Debug\net8.0\ref\Domain.dll
+D:\TuHoc\.net\MiniERP\src\Domain\obj\Debug\net8.0\Domain.sourcelink.json

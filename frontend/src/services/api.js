@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // Sử dụng environment variable, fallback về localhost nếu không có
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
+// Sử dụng HTTPS port 5001 cho secure connection
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:5001/api';
 
 // Tạo axios instance
 const api = axios.create({
@@ -48,7 +49,7 @@ export default api;
 // Export API_BASE_URL để các component khác có thể sử dụng (ví dụ: build image URLs)
 // Lưu ý: API_BASE_URL có dạng "http://localhost:5001/api", nhưng cho images cần base URL không có "/api"
 export const getBaseUrl = () => {
-  const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
+  const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://localhost:5001/api';
   // Nếu có "/api" ở cuối, loại bỏ nó
   if (apiUrl.endsWith('/api')) {
     return apiUrl.slice(0, -4); // Loại bỏ "/api"

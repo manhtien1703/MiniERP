@@ -13,3 +13,4 @@ D:\TuHoc\.net\MiniERP\src\Application\obj\Debug\net8.0\Application.dll
 D:\TuHoc\.net\MiniERP\src\Application\obj\Debug\net8.0\refint\Application.dll
 D:\TuHoc\.net\MiniERP\src\Application\obj\Debug\net8.0\Application.pdb
 D:\TuHoc\.net\MiniERP\src\Application\obj\Debug\net8.0\ref\Application.dll
+D:\TuHoc\.net\MiniERP\src\Application\obj\Debug\net8.0\Application.sourcelink.json

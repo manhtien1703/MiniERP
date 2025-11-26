@@ -166,3 +166,9 @@ D:\TuHoc\.net\MiniERP\src\Web\bin\Debug\net8.0\FluentValidation.AspNetCore.dll
 D:\TuHoc\.net\MiniERP\src\Web\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 D:\TuHoc\.net\MiniERP\src\Web\bin\Debug\net8.0\BCrypt.Net-Next.dll
 D:\TuHoc\.net\MiniERP\src\Web\bin\Debug\net8.0\Web.staticwebassets.runtime.json
+D:\TuHoc\.net\MiniERP\src\Web\obj\Debug\net8.0\Web.sourcelink.json
+D:\TuHoc\.net\MiniERP\src\Web\bin\Debug\net8.0\CommunityToolkit.HighPerformance.dll
+D:\TuHoc\.net\MiniERP\src\Web\bin\Debug\net8.0\Minio.dll
+D:\TuHoc\.net\MiniERP\src\Web\bin\Debug\net8.0\System.IO.Hashing.dll
+D:\TuHoc\.net\MiniERP\src\Web\bin\Debug\net8.0\System.Reactive.dll
+D:\TuHoc\.net\MiniERP\src\Web\bin\Debug\net8.0\System.Reactive.Linq.dll

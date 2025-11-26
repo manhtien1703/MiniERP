@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using Application.Services;
 
 namespace Web.Controllers;
 
@@ -15,17 +17,23 @@ namespace Web.Controllers;
 [Authorize]
 public class UploadController : ControllerBase
 {
-    private readonly IWebHostEnvironment _environment;
+    private readonly IObjectStorageService _objectStorageService;
     private readonly ILogger<UploadController> _logger;
+    private readonly string _bucketName;
 
-    public UploadController(IWebHostEnvironment environment, ILogger<UploadController> logger)
+    public UploadController(
+        IObjectStorageService objectStorageService,
+        ILogger<UploadController> logger,
+        IConfiguration configuration)
     {
-        _environment = environment;
+        _objectStorageService = objectStorageService;
         _logger = logger;
+        _bucketName = configuration["MinIO:BucketName"] ?? "device-images";
     }
 
     [HttpPost("device-image")]
     [Consumes("multipart/form-data")]
+    [ApiExplorerSettings(IgnoreApi = true)] // Tạm thời exclude khỏi Swagger để tránh lỗi 500
     public async Task<IActionResult> UploadDeviceImage([FromForm] IFormFile file)
     {
         if (file == null || file.Length == 0)
@@ -49,69 +57,77 @@ public class UploadController : ControllerBase
 
         try
         {
-            // Đảm bảo WebRootPath tồn tại
-            if (string.IsNullOrEmpty(_environment.WebRootPath))
-            {
-                _environment.WebRootPath = Path.Combine(_environment.ContentRootPath, "wwwroot");
-            }
-
-            // Tạo thư mục wwwroot nếu chưa có
-            if (!Directory.Exists(_environment.WebRootPath))
-            {
-                Directory.CreateDirectory(_environment.WebRootPath);
-            }
-
-            // Tạo thư mục uploads nếu chưa có
-            var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "devices");
-            if (!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
-
             // Tạo tên file duy nhất
             var fileName = $"{Guid.NewGuid()}{extension}";
-            var filePath = Path.Combine(uploadsFolder, fileName);
+            var objectName = $"devices/{fileName}";
 
-            _logger.LogInformation("Uploading file: {FileName} to {FilePath}", file.FileName, filePath);
+            _logger.LogInformation("Uploading file to MinIO: {FileName} -> {BucketName}/{ObjectName}", file.FileName, _bucketName, objectName);
 
-            // Lưu file
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            // Lấy content type từ file
+            var contentType = file.ContentType ?? "application/octet-stream";
+            
+            // Xác định content type dựa trên extension nếu chưa có
+            if (contentType == "application/octet-stream")
             {
-                await file.CopyToAsync(stream);
+                contentType = extension switch
+                {
+                    ".jpg" or ".jpeg" => "image/jpeg",
+                    ".png" => "image/png",
+                    ".gif" => "image/gif",
+                    ".webp" => "image/webp",
+                    _ => "application/octet-stream"
+                };
             }
 
-            // Trả về URL
-            var fileUrl = $"/uploads/devices/{fileName}";
-            _logger.LogInformation("File uploaded successfully: {FileUrl}", fileUrl);
-            return Ok(new { url = fileUrl });
+            // Upload file lên MinIO
+            using (var stream = file.OpenReadStream())
+            {
+                var fileUrl = await _objectStorageService.UploadFileAsync(
+                    _bucketName,
+                    objectName,
+                    stream,
+                    contentType,
+                    new Dictionary<string, string>
+                    {
+                        { "original-filename", file.FileName },
+                        { "upload-date", DateTime.UtcNow.ToString("O") }
+                    });
+
+                _logger.LogInformation("File uploaded successfully to MinIO: {FileUrl}", fileUrl);
+                return Ok(new { url = fileUrl });
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error uploading file: {Message}", ex.Message);
+            _logger.LogError(ex, "Error uploading file to MinIO: {Message}", ex.Message);
             return StatusCode(500, new { error = $"Lỗi khi upload file: {ex.Message}" });
         }
     }
 
     [HttpDelete("device-image/{fileName}")]
-    public IActionResult DeleteDeviceImage(string fileName)
+    public async Task<IActionResult> DeleteDeviceImage(string fileName)
     {
         try
         {
-            var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "devices");
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            if (System.IO.File.Exists(filePath))
+            var objectName = $"devices/{fileName}";
+            
+            // Kiểm tra file có tồn tại không
+            var exists = await _objectStorageService.FileExistsAsync(_bucketName, objectName);
+            if (!exists)
             {
-                System.IO.File.Delete(filePath);
-                return Ok(new { message = "Xóa file thành công" });
+                return NotFound(new { error = "File không tồn tại" });
             }
 
-            return NotFound(new { error = "File không tồn tại" });
+            // Xóa file từ MinIO
+            await _objectStorageService.DeleteFileAsync(_bucketName, objectName);
+            
+            _logger.LogInformation("File deleted successfully from MinIO: {BucketName}/{ObjectName}", _bucketName, objectName);
+            return Ok(new { message = "Xóa file thành công" });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting file");
-            return StatusCode(500, new { error = "Lỗi khi xóa file" });
+            _logger.LogError(ex, "Error deleting file from MinIO: {Message}", ex.Message);
+            return StatusCode(500, new { error = $"Lỗi khi xóa file: {ex.Message}" });
         }
     }
 }

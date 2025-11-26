@@ -17,3 +17,4 @@ D:\TuHoc\.net\MiniERP\src\Infrastructure\obj\Debug\net8.0\refint\Infrastructure.
 D:\TuHoc\.net\MiniERP\src\Infrastructure\obj\Debug\net8.0\Infrastructure.pdb
 D:\TuHoc\.net\MiniERP\src\Infrastructure\obj\Debug\net8.0\Infrastructure.genruntimeconfig.cache
 D:\TuHoc\.net\MiniERP\src\Infrastructure\obj\Debug\net8.0\ref\Infrastructure.dll
+D:\TuHoc\.net\MiniERP\src\Infrastructure\obj\Debug\net8.0\Infrastructure.sourcelink.json

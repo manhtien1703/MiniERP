@@ -1,7 +1,7 @@
 {
   "format": 1,
   "restore": {
-    "D:\\TuHoc\\.net\\MiniERP\\src\\Web\\Web.csproj": {}
+    "D:\\TuHoc\\.net\\MiniERP\\src\\web\\Web.csproj": {}
   },
   "projects": {
     "D:\\TuHoc\\.net\\MiniERP\\src\\Application\\Application.csproj": {
@@ -222,6 +222,10 @@
               "target": "Package",
               "version": "[8.0.8, )"
             },
+            "Minio": {
+              "target": "Package",
+              "version": "[5.0.2, )"
+            },
             "Pomelo.EntityFrameworkCore.MySql": {
               "target": "Package",
               "version": "[8.0.2, )"
@@ -247,14 +251,14 @@
         }
       }
     },
-    "D:\\TuHoc\\.net\\MiniERP\\src\\Web\\Web.csproj": {
+    "D:\\TuHoc\\.net\\MiniERP\\src\\web\\Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\TuHoc\\.net\\MiniERP\\src\\Web\\Web.csproj",
+        "projectUniqueName": "D:\\TuHoc\\.net\\MiniERP\\src\\web\\Web.csproj",
         "projectName": "Web",
-        "projectPath": "D:\\TuHoc\\.net\\MiniERP\\src\\Web\\Web.csproj",
+        "projectPath": "D:\\TuHoc\\.net\\MiniERP\\src\\web\\Web.csproj",
         "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "D:\\TuHoc\\.net\\MiniERP\\src\\Web\\obj\\",
+        "outputPath": "D:\\TuHoc\\.net\\MiniERP\\src\\web\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -316,6 +320,10 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[8.0.0, )"
+            },
+            "Minio": {
+              "target": "Package",
+              "version": "[5.0.2, )"
             },
             "NSwag.AspNetCore": {
               "target": "Package",
