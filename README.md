@@ -151,3 +151,4 @@ MiniERP/
 - Database tự động migrate khi backend khởi động
 - MinIO Console: http://localhost:9001 (minioadmin/minioadmin)
 - Xem API documentation tại `/swagger`
+- Link demo: https://youtu.be/8dI1dor2hv8
