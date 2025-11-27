@@ -9,7 +9,7 @@
 *.ngrok-vercel/
 
 # Ignore PowerShell scripts config
-**/.ngrok-vercel/
+**/.ngrok-vercel/                                                           
 
 # MinIO data directory
 minio-data/

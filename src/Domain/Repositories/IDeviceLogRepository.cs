@@ -10,4 +10,5 @@ public interface IDeviceLogRepository
     Task AddLogAsync(DeviceLog log);
     Task<DeviceLog?> GetLatestLogAsync(string deviceId);
     Task<IEnumerable<DeviceLog>> GetHistoryAsync(string deviceId, DateTime from, DateTime to);
+    Task DeleteLogsByDeviceIdAsync(string deviceId);
 }

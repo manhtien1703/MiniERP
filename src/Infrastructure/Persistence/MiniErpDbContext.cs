@@ -49,6 +49,12 @@ public class MiniErpDbContext : DbContext
                     v => v.ToUniversalTime(),
                     v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
                 );
+
+            // Cấu hình relationship với Device và cascade delete
+            entity.HasOne(dl => dl.Device)
+                .WithMany(d => d.Logs)
+                .HasForeignKey(dl => dl.DeviceId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Cấu hình cho User

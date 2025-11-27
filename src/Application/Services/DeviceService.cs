@@ -3,6 +3,7 @@ using Domain.Repositories;
 using Domain.Exceptions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System;
 
 namespace Application.Services;
 
@@ -10,11 +11,13 @@ public class DeviceService
 {
     private readonly IDeviceRepository _repo;
     private readonly IWarehouseRepository _warehouseRepo;
+    private readonly IDeviceLogRepository _logRepo;
 
-    public DeviceService(IDeviceRepository repo, IWarehouseRepository warehouseRepo)
+    public DeviceService(IDeviceRepository repo, IWarehouseRepository warehouseRepo, IDeviceLogRepository logRepo)
     {
         _repo = repo;
         _warehouseRepo = warehouseRepo;
+        _logRepo = logRepo;
     }
 
     public async Task<IEnumerable<CoolingDevice>> GetAllAsync() => await _repo.GetAllAsync();
@@ -66,6 +69,9 @@ public class DeviceService
         if (device == null)
             return false;
 
+        // Xóa tất cả DeviceLog liên quan trước khi xóa Device
+        await _logRepo.DeleteLogsByDeviceIdAsync(id);
+        
         await _repo.DeleteAsync(device);
         return true;
     }
