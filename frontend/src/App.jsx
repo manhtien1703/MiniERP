@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Warehouses from './pages/Warehouses';
 import WarehouseDetail from './pages/WarehouseDetail';
 import Devices from './pages/Devices';
+import DeviceDashboard from './pages/DeviceDashboard';
 import Monitoring from './pages/Monitoring';
 import './App.css';
 
@@ -48,6 +49,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <Devices />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/devices/:deviceId"
+            element={
+              <ProtectedRoute>
+                <DeviceDashboard />
               </ProtectedRoute>
             }
           />

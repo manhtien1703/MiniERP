@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { deviceService } from '../services/deviceService';
 import { monitoringService } from '../services/monitoringService';
@@ -11,6 +12,7 @@ const deviceTypeMap = {
 };
 
 const Monitoring = () => {
+  const navigate = useNavigate();
   const [devicesData, setDevicesData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(new Date());
@@ -63,6 +65,12 @@ const Monitoring = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatNumber = (value, decimals = 2) => {
+    if (value === null || value === undefined || isNaN(value)) return '0.00';
+    const num = typeof value === 'number' ? value : parseFloat(value);
+    return isNaN(num) ? '0.00' : num.toFixed(decimals);
   };
 
   const getTemperatureStatus = (temp, deviceType) => {
@@ -215,7 +223,12 @@ const Monitoring = () => {
         ) : (
           <div className="monitoring-grid">
             {devicesData.map((device) => (
-              <div key={device.id} className="device-monitor-card">
+              <div
+                key={device.id}
+                className="device-monitor-card"
+                onClick={() => navigate(`/devices/${device.id}`)}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className="device-header">
                   <div className="device-icon">
                     {device.deviceType === 0 ? '❄️' : device.deviceType === 1 ? '🧊' : '💨'}
@@ -236,7 +249,7 @@ const Monitoring = () => {
                       <div className="sensor-icon">🌡️</div>
                       <div className="sensor-info">
                         <div className="sensor-label">Nhiệt độ</div>
-                        <div className="sensor-value">{device.log.temperature}°C</div>
+                        <div className="sensor-value">{formatNumber(device.log.temperature)}°C</div>
                       </div>
                     </div>
 
@@ -244,7 +257,7 @@ const Monitoring = () => {
                       <div className="sensor-icon">💧</div>
                       <div className="sensor-info">
                         <div className="sensor-label">Độ ẩm</div>
-                        <div className="sensor-value">{device.log.humidity}%</div>
+                        <div className="sensor-value">{formatNumber(device.log.humidity)}%</div>
                       </div>
                     </div>
 

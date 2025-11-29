@@ -152,3 +152,4 @@ MiniERP/
 - MinIO Console: http://localhost:9001 (minioadmin/minioadmin)
 - Xem API documentation tại `/swagger`
 - Link demo: https://youtu.be/8dI1dor2hv8
+- Link demo chức năng hiển thị biểu đồ nhiệt độ & độ ẩm: https://youtu.be/5etMJYL5tpQ

@@ -1,0 +1,268 @@
+.device-dashboard {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.back-button {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.back-button:hover {
+  background: #5a6268;
+}
+
+.device-header-card {
+  background: white;
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.device-header-content {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.device-icon-large {
+  font-size: 4rem;
+}
+
+.device-info {
+  flex: 1;
+}
+
+.device-info h1 {
+  margin: 0 0 0.5rem 0;
+  color: #667eea;
+  font-size: 2rem;
+}
+
+.device-id {
+  color: #999;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+}
+
+.device-meta {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.device-type {
+  background: #e9ecef;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.status {
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.status.active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status.inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.device-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.device-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.metric-card {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-left: 4px solid;
+}
+
+.metric-card.temp.normal,
+.metric-card.humidity.normal {
+  border-color: #28a745;
+  background-color: #d4edda;
+}
+
+.metric-card.temp.warning,
+.metric-card.humidity.warning {
+  border-color: #ffc107;
+  background-color: #fff3cd;
+}
+
+.metric-card.temp.danger,
+.metric-card.humidity.danger {
+  border-color: #dc3545;
+  background-color: #f8d7da;
+}
+
+.metric-icon {
+  font-size: 3rem;
+}
+
+.metric-info {
+  flex: 1;
+}
+
+.metric-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.metric-time {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.chart-section {
+  background: white;
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.chart-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.time-range-selector {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.time-btn {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e9ecef;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.time-btn:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.time-btn.active {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.refresh-btn {
+  padding: 0.5rem 1rem;
+  border: 2px solid #28a745;
+  background: white;
+  color: #28a745;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.refresh-btn:hover {
+  background: #28a745;
+  color: white;
+}
+
+.chart-container {
+  margin-top: 1rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.error {
+  text-align: center;
+  padding: 2rem;
+  color: #dc3545;
+}
+
+@media (max-width: 768px) {
+  .device-dashboard {
+    padding: 1rem;
+  }
+
+  .device-header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .time-range-selector {
+    width: 100%;
+  }
+
+  .time-btn {
+    flex: 1;
+  }
+}
+
